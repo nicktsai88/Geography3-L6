@@ -266,19 +266,9 @@
         /* --- Collection & History --- */
         .collection-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
         .card-item { aspect-ratio: 2/3; border-radius: 8px; overflow: hidden; border: 1px solid #ddd; cursor: pointer; position: relative; background: #fff;}
-        .card-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
-        
-        /* 修改點：新增鎖定狀態樣式 (灰階+鎖頭覆蓋) */
-        .card-item.locked { cursor: default; }
-        .card-item.locked img { filter: grayscale(100%) contrast(0.8) brightness(0.8); }
-        
-        /* 鎖頭疊加層 */
-        .lock-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; align-items: center; justify-content: center;
-            background: rgba(0,0,0,0.2); /* 稍微變暗 */
-            font-size: 3em; color: #fff; text-shadow: 0 0 5px #000;
-        }
+        .card-item img { width: 100%; height: 100%; object-fit: cover; }
+        .card-item.locked img { filter: grayscale(100%) opacity(0.3); }
+        .card-item.locked { background: #f0f0f0; display: flex; align-items: center; justify-content: center; flex-direction: column; color: #aaa; }
 
         /* --- Modal --- */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 20000; display: none; justify-content: center; align-items: center; }
@@ -348,6 +338,7 @@
         <div class="avatar-selection">
             <img src="images/Chris.png" class="avatar-option selected" onclick="selectAvatar('Chris.png', this)">
             <img src="images/Louis.png" class="avatar-option" onclick="selectAvatar('Louis.png', this)">
+            <img src="images/kitty.png" class="avatar-option" onclick="selectAvatar('kitty.png', this)">
         </div>
 
         <div id="quick-login-area" class="quick-login-area"></div>
@@ -492,7 +483,7 @@
         // 修改點 2: 總題數 207 題，分為 10 關 (9*20 + 1*27)
         const LEVEL_CONFIG = [20, 20, 20, 20, 20, 20, 20, 20, 20, 27];
         // 影片播放清單
-        const YOUTUBE_PLAYLIST = ['aGZk0nEBWv4', 'advioIb8-gE'];
+        const YOUTUBE_PLAYLIST = ['iLAS0vy7-78', '5zeyr-_G_4w', 'aZXJATkkDoA', 'UKbZ4r88z3Q', 'aGZk0nEBWv4', 'advioIb8-gE'];
         // 修改點 3: LocalStorage 前綴改為 Geography3-L6_
         const APP_PREFIX = 'Geography3-L6_';
         
@@ -1119,7 +1110,6 @@
             `).join('') || '<p style="text-align:center">無紀錄</p>';
         }
 
-        // 修改點：地理圖鑑解鎖前後顯示邏輯
         function showCollection() {
             hideAllScreens();
             document.getElementById('collection-screen').style.display = 'block';
@@ -1135,22 +1125,15 @@
             for(let i=1; i<=LEVEL_CONFIG.length; i++) {
                 const num = i<10?`0${i}`:`${i}`;
                 const unlocked = (scores[i] >= 70);
-                
                 const item = document.createElement('div');
-                // 若未解鎖，添加 locked class (CSS處理灰階與鎖頭)
-                item.className = `card-item ${unlocked ? '' : 'locked'}`;
+                item.className = `card-item ${unlocked?'':'locked'}`;
                 
-                // HTML結構：無論解鎖與否都放入圖片，未解鎖時疊加鎖頭圖層
-                let htmlContent = `<img src="images/card_${num}.jpg" onerror="this.style.display='none';this.parentNode.innerHTML='圖片載入失敗'">`;
-                if(!unlocked) {
-                    htmlContent += `<div class="lock-overlay">🔒</div><div style="position:absolute;bottom:10px;width:100%;text-align:center;font-weight:bold;color:white;text-shadow:0 0 3px #000;">園區 ${i}</div>`;
-                }
-                item.innerHTML = htmlContent;
-
                 if(unlocked) {
+                    item.innerHTML = `<img src="images/card_${num}.jpg">`;
                     item.onclick = () => openCardModal(`images/card_${num}.jpg`, `產業卡 #${num}`);
+                } else {
+                    item.innerHTML = `<span style="font-size:2em;">🔒</span><br>園區 ${i}`;
                 }
-                
                 grid.appendChild(item);
             }
         }
