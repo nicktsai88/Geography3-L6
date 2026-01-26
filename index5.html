@@ -6,26 +6,14 @@
     <title>地理第3冊：L6 東北亞的經濟發展</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    
-    <!-- Firebase Import Map -->
-    <script type="importmap">
-        {
-            "imports": {
-                "firebase/app": "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js",
-                "firebase/auth": "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js",
-                "firebase/firestore": "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js"
-            }
-        }
-    </script>
-
     <style>
         :root {
-            /* 配色系統 - 東北亞經濟主題 */
-            --primary-color: #0d47a1;   /* 科技深藍 */
-            --secondary-color: #ff6f00; /* 金融琥珀 */
-            --bg-color: #f5f5f5;        /* 現代灰白 */
+            /* 配色系統 - 東北亞經濟主題 (科技藍、金融金、工業灰) */
+            --primary-color: #0d47a1;   /* 科技深藍 (Samsung/企業形象) */
+            --secondary-color: #ff6f00; /* 金融琥珀 (繁榮/貨幣) */
+            --bg-color: #f5f5f5;        /* 現代灰白 (辦公室/都市) */
             --text-color: #212121;      /* 商務黑 */
-            --accent-color: #d50000;    /* 指標紅 */
+            --accent-color: #d50000;    /* 指標紅 (股市上漲/強調) */
             --correct-color: #2e7d32;   /* 獲利綠 */
             --wrong-color: #c62828;     /* 虧損紅 */
             --locked-color: #cfd8dc;    /* 鋼鐵灰 */
@@ -33,12 +21,12 @@
             --quick-mode-color: #006064; /* 數據青 */
             --quick-mode-bg: #e0f7fa;    /* 資訊流背景 */
             --player-bg: #ffffff;
-            --header-height: 80px;      /* 調整高度 */
+            --header-height: 100px;      /* 音樂播放器高度 */
         }
 
         body { 
             font-family: 'Noto Sans TC', "Microsoft JhengHei", Arial, sans-serif; 
-            max-width: 1000px;
+            max-width: 1000px; /* 加寬一點以容納雙區塊 */
             margin: 0 auto; 
             padding: calc(var(--header-height) + 20px) 20px 20px 20px; 
             background-color: var(--bg-color); 
@@ -46,7 +34,7 @@
             background-image: 
                 linear-gradient(rgba(13, 71, 161, 0.05) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(13, 71, 161, 0.05) 1px, transparent 1px);
-            background-size: 40px 40px;
+            background-size: 40px 40px; /* 網格狀背景，象徵數據與規劃 */
             background-attachment: fixed;
             min-height: 100vh;
         }
@@ -54,70 +42,33 @@
         h1, h2, h3 { text-align: center; color: var(--text-color); }
         h1 { color: var(--primary-color); text-shadow: 1px 1px 2px rgba(0,0,0,0.1); margin-top: 0;}
 
-        /* --- 音樂播放器固定列 (重製版) --- */
+        /* --- 音樂播放器固定列 --- */
         #music-player-bar {
             position: fixed; top: 0; left: 0; width: 100%; height: var(--header-height);
             background-color: var(--player-bg); border-bottom: 3px solid var(--primary-color);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
-            display: grid; 
-            grid-template-columns: 60px 1fr 120px; /* 左圖示 | 中間控制與曲名 | 右音量 */
-            align-items: center; 
-            padding: 0 15px; box-sizing: border-box;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: flex; align-items: center;
+            justify-content: space-between; padding: 0 15px; box-sizing: border-box;
             z-index: 10000;
         }
+        .player-left { flex: 1; display: flex; justify-content: flex-start; }
+        .player-right { flex: 1; display: flex; justify-content: flex-end; }
+        .player-icon { font-size: 1.5em; background: #e3f2fd; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 2px solid var(--primary-color); color: var(--primary-color);}
 
-        /* 左側圖示 */
-        .player-left { display: flex; justify-content: flex-start; }
-        .player-icon { 
-            font-size: 1.5em; background: #e3f2fd; width: 40px; height: 40px; 
-            display: flex; align-items: center; justify-content: center; 
-            border-radius: 50%; border: 2px solid var(--primary-color); 
-            color: var(--primary-color);
-            animation: spin 10s linear infinite;
-            animation-play-state: paused; /* 預設暫停 */
+        #yt-wrapper {
+            position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+            width: 144px; height: 81px; background: #000; border: 2px solid var(--text-color);
+            border-radius: 4px; overflow: hidden; transition: all 0.3s ease; z-index: 5;
         }
-
-        /* 中央控制區 */
-        .player-center {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            width: 100%; overflow: hidden;
-        }
-
-        /* 跑馬燈容器 */
-        .marquee-container {
-            width: 80%; max-width: 400px;
-            background: #f1f8e9; border-radius: 15px;
-            padding: 2px 10px; margin-bottom: 5px;
-            overflow: hidden; white-space: nowrap;
-            border: 1px solid #c5e1a5;
-            position: relative;
-        }
-        .marquee-text {
-            display: inline-block;
-            font-size: 0.9em; color: var(--primary-color); font-weight: bold;
-            padding-left: 100%;
-            animation: marquee 25s linear infinite;
-        }
-
-        /* 播放按鈕群 */
-        .player-controls { display: flex; align-items: center; gap: 15px; }
-        .ctrl-btn { 
-            background: none; border: 2px solid transparent; border-radius: 50%;
-            cursor: pointer; color: #78909c; font-size: 1.4em; 
-            width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
-            transition: all 0.2s;
-        }
-        .ctrl-btn:hover { color: var(--primary-color); background: #e3f2fd; }
-        .ctrl-btn:active { transform: scale(0.95); }
-        #play-pause-btn { 
-            color: var(--primary-color); font-size: 1.8em; 
-            border-color: var(--primary-color);
-        }
-
-        /* 右側音量區 */
-        .player-right { display: flex; justify-content: flex-end; align-items: center; gap: 5px; }
-        .volume-icon { font-size: 1.2em; color: #78909c; }
-        .volume-slider { width: 80px; accent-color: var(--primary-color); cursor: pointer; height: 4px; }
+        .yt-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: 20; }
+        #yt-wrapper.video-hidden { width: 0; height: 0; border: none; opacity: 0; }
+        
+        .player-controls { display: flex; align-items: center; gap: 8px; }
+        .ctrl-btn { background: none; border: none; cursor: pointer; color: #78909c; font-size: 1.4em; padding: 5px; }
+        .ctrl-btn:hover, .ctrl-btn.active { color: var(--primary-color); }
+        .volume-container { display: flex; align-items: center; gap: 5px; }
+        .volume-slider { width: 60px; accent-color: var(--primary-color); cursor: pointer;}
+        .mode-btn { border: 1px solid #bdc3c7; background: #fff; padding: 5px 10px; border-radius: 20px; font-size: 0.8em; cursor: pointer; display: flex; align-items: center; gap: 5px;}
+        .mode-btn:hover { border-color: var(--primary-color); color: var(--primary-color); }
 
         /* --- 容器通用 --- */
         .container-box {
@@ -137,16 +88,8 @@
             transition: 0.3s; object-fit: cover; background: #FFF; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         .avatar-option.selected { border-color: var(--primary-color); transform: scale(1.1); }
-        
-        /* 雲端登入列表優化 */
-        .quick-login-area { 
-            display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 15px; 
-            max-height: 150px; overflow-y: auto; padding: 5px; /* 加上捲軸 */
-            border: 1px solid #eee; border-radius: 10px; background: rgba(255,255,255,0.5);
-        }
-        .user-tag { background: #fff; border: 1px solid #bdbdbd; padding: 6px 15px; border-radius: 20px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.95em; transition: 0.2s;}
-        .user-tag:hover { border-color: var(--primary-color); background: #e3f2fd; }
-        
+        .quick-login-area { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 15px; }
+        .user-tag { background: #fff; border: 1px solid #bdbdbd; padding: 6px 15px; border-radius: 20px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.95em;}
         .delete-user { font-weight: bold; padding: 2px 6px; border-radius: 50%; background: #eee; color: #888; }
         .delete-user:hover { background: var(--wrong-color); color: #fff; }
         input[type="text"] { padding: 12px; font-size: 1.2em; border: 2px solid #90a4ae; border-radius: 30px; width: 80%; text-align: center; margin: 10px 0;}
@@ -156,10 +99,14 @@
             display: flex; gap: 20px; align-items: stretch;
             min-height: 400px;
         }
+        
+        /* Dashboard 背景圖設定 */
         #level-screen {
             background: linear-gradient(rgba(255,255,255,0.6), rgba(255,255,255,0.6)), url('images/background.jpg');
             background-size: cover; background-position: center;
         }
+
+        /* 左側：標準實驗區 */
         .dashboard-std-zone {
             flex: 2; border: 1px solid #cfd8dc; border-radius: 12px; padding: 20px;
             background: rgba(255,255,255,0.85);
@@ -168,12 +115,14 @@
             font-size: 1.4em; color: var(--primary-color); margin-bottom: 15px; 
             display: flex; align-items: center; gap: 10px; border-bottom: 2px solid #90a4ae; padding-bottom: 10px;
         }
+
+        /* Grid Layout for Levels */
         .level-grid {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
             gap: 15px; justify-items: center;
         }
         .level-grid-btn {
-            width: 100%; aspect-ratio: 1; min-height: 110px;
+            width: 100%; aspect-ratio: 1; min-height: 110px; /* 加大高度以確保圖示顯示 */
             border-radius: 15px;
             background: #fff; border: 3px solid var(--primary-color);
             display: flex; flex-direction: column; justify-content: center; align-items: center;
@@ -184,14 +133,19 @@
         .level-grid-btn:active:not(:disabled) { transform: translateY(2px); box-shadow: none; }
         .level-grid-btn:disabled { border-color: #cfd8dc; color: #b0bec5; background: #eceff1; cursor: not-allowed; box-shadow: none;}
         
+        /* 修改點：指定 Emoji 字體並加大 */
         .lvl-icon { 
-            font-size: 3em; margin-bottom: 8px; 
+            font-size: 3em; 
+            margin-bottom: 8px; 
             font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", "Android Emoji", sans-serif;
             line-height: 1.1;
         }
+        
         .lvl-score { font-size: 0.85em; font-weight: bold; color: var(--correct-color); }
+        /* 修改點：新增標題樣式，加大字體 */
         .lvl-label { font-size: 1.3em; font-weight: bold; font-family: "KaiTi", "BiauKai", serif;}
         
+        /* 右側：極速刷題區 */
         .dashboard-speed-zone {
             flex: 1; background: var(--quick-mode-bg); border-radius: 12px; padding: 20px;
             border: 2px solid var(--quick-mode-color); display: flex; flex-direction: column; align-items: center;
@@ -204,6 +158,7 @@
         }
         .speed-big-btn:hover { transform: scale(1.05); background: #004d40; }
 
+        /* Dashboard 底部工具列 */
         .dashboard-tools {
             margin-top: 20px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;
             padding-top: 20px; border-top: 1px solid #ddd;
@@ -223,16 +178,26 @@
         .quiz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .progress-bar-container { width: 100%; background: #e0e0e0; height: 10px; border-radius: 5px; overflow: hidden; margin-bottom: 20px; }
         .progress-bar-fill { height: 100%; background: var(--secondary-color); width: 0%; transition: width 0.3s; }
+        /* 修改點：題目字體加大至 1.5em */
         .question-box { background: #fff; padding: 20px; border-radius: 10px; border-left: 5px solid var(--primary-color); box-shadow: 0 2px 10px rgba(0,0,0,0.05); font-size: 1.5em; line-height: 1.5; margin-bottom: 20px; }
         .option-list { list-style: none; padding: 0; }
+        /* 修改點：選項按鈕字體加大至 1.3em */
         .option-btn { width: 100%; padding: 15px; margin-bottom: 10px; background: #fff; border: 2px solid #e0e0e0; border-radius: 10px; cursor: pointer; font-size: 1.3em; text-align: left; transition: 0.2s; position: relative; }
         .option-btn:hover { border-color: var(--primary-color); background: #e3f2fd; }
         .option-btn.correct { background: #d4edda; border-color: var(--correct-color); color: #155724; }
         .option-btn.wrong { background: #f8d7da; border-color: var(--wrong-color); color: #721c24; }
+        /* 修改點：解析區塊加上色塊區隔 */
         .explanation-box { 
-            background: #e0f7fa; padding: 20px; border-radius: 8px; 
-            border: 1px solid #b2ebf2; border-left: 6px solid var(--secondary-color);
-            margin-top: 25px; display: none; line-height: 1.6; font-size: 1.3em; color: #37474f;
+            background: #e0f7fa; /* 淺青色 */
+            padding: 20px; 
+            border-radius: 8px; 
+            border: 1px solid #b2ebf2; /* 邊框 */
+            border-left: 6px solid var(--secondary-color); /* 保留左側強調線 */
+            margin-top: 25px; 
+            display: none; 
+            line-height: 1.6; 
+            font-size: 1.3em; 
+            color: #37474f;
         }
 
         /* --- Waterfall Quiz Mode (Quick Quiz) --- */
@@ -252,22 +217,40 @@
             background: #fff; border-radius: 10px; padding: 20px; margin-bottom: 25px;
             box-shadow: 0 3px 10px rgba(0,0,0,0.05); border: 1px solid #eee; position: relative;
         }
-        .waterfall-card.card-correct { background-color: #d4edda; border-color: var(--correct-color); }
-        .waterfall-card.card-wrong { background-color: #f8d7da; border-color: var(--wrong-color); }
+        /* 新增：答對時的綠色底色 */
+        .waterfall-card.card-correct {
+            background-color: #d4edda;
+            border-color: var(--correct-color);
+        }
+        /* 新增：答錯時的紅色底色 */
+        .waterfall-card.card-wrong {
+            background-color: #f8d7da;
+            border-color: var(--wrong-color);
+        }
+
         .waterfall-card.locked { opacity: 0.9; }
         .card-actions { position: absolute; top: 15px; right: 15px; display: flex; gap: 10px; }
+         /* 修改點：加大愛心與垃圾桶圖示的大小與點擊範圍 */
         .action-icon { cursor: pointer; font-size: 2.2em; transition: 0.2s; color: #bdc3c7; padding: 5px; }
         .action-icon.active { color: var(--favorite-color); }
         .action-icon.trash:hover { color: var(--wrong-color); }
 
+        /* 修改點：瀑布流題目字體加大至 1.5em，且增加右側內距以避免與按鈕重疊 */
         .wf-question-text { 
-            font-size: 1.5em; font-weight: bold; margin-bottom: 15px; 
-            padding-right: 100px; line-height: 1.5; color: #263238; 
+            font-size: 1.5em; 
+            font-weight: bold; 
+            margin-bottom: 15px; 
+            padding-right: 100px; /* 從 60px 改為 120px，確保容納兩個按鈕 */
+            line-height: 1.5; 
+            color: #263238; 
         }
+        /* 修改點：題號改成紅底白字，並加強顯著性 */
         .wf-q-badge { display: inline-block; background: var(--secondary-color); color: white; padding: 3px 10px; border-radius: 4px; font-size: 0.9em; font-weight: bold; margin-right: 8px; vertical-align: middle; }
+                /* 修改點：wf-img 圖片置中 (margin: 10px auto) */
         .wf-img { max-width: 100%; max-height: 200px; display: block; margin: 10px auto; border-radius: 8px; border: 1px solid #eee; }
         
         .wf-options { display: grid; grid-template-columns: 1fr; gap: 8px; }
+        /* 修改點：瀑布流選項按鈕字體加大至 1.3em */
         .wf-opt-btn {
             padding: 12px; border: 2px solid #eee; background: #fff; border-radius: 8px;
             text-align: left; cursor: pointer; font-size: 1.3em; transition: 0.2s;
@@ -276,22 +259,34 @@
         .wf-opt-btn.correct { background: #d4edda; border-color: var(--correct-color); color: #155724; font-weight: bold;}
         .wf-opt-btn.wrong { background: #f8d7da; border-color: var(--wrong-color); color: #721c24; }
         
+        /* 修改點：瀑布流解析區塊加上色塊區隔 (淺黃色) */
         .wf-explanation {
-            margin-top: 20px; background: #e0f7fa; padding: 20px; 
-            border-radius: 8px; border: 1px solid #b2ebf2;
-            border-left: 6px solid #4dd0e1; font-size: 1.3em; color: #37474f; display: none;
+            margin-top: 20px; 
+            background: #e0f7fa; /* 淺青色背景，與白色卡片區分 */
+            padding: 20px; 
+            border-radius: 8px;
+            border: 1px solid #b2ebf2;
+            border-left: 6px solid #4dd0e1; /* 青色左側強調線 */
+            font-size: 1.3em; 
+            color: #37474f;  /* 修改點：字體顏色改為深鐵藍灰色 */
+            display: none;
         }
 
         /* --- Collection & History --- */
         .collection-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
         .card-item { aspect-ratio: 2/3; border-radius: 8px; overflow: hidden; border: 1px solid #ddd; cursor: pointer; position: relative; background: #fff;}
         .card-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        
+        /* 修改點：新增鎖定狀態樣式 (灰階+鎖頭覆蓋) */
         .card-item.locked { cursor: default; }
         .card-item.locked img { filter: grayscale(100%) contrast(0.8) brightness(0.8); }
+        
+        /* 鎖頭疊加層 */
         .lock-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; align-items: center; justify-content: center;
-            background: rgba(0,0,0,0.2); font-size: 3em; color: #fff; text-shadow: 0 0 5px #000;
+            background: rgba(0,0,0,0.2); /* 稍微變暗 */
+            font-size: 3em; color: #fff; text-shadow: 0 0 5px #000;
         }
 
         /* --- Modal --- */
@@ -299,83 +294,54 @@
         .modal-content { background: white; padding: 20px; border-radius: 10px; max-width: 90%; max-height: 90%; position: relative; text-align: center; }
         .modal-close { position: absolute; top: -15px; right: -15px; background: red; color: white; width: 30px; height: 30px; border-radius: 50%; border: 2px solid white; cursor: pointer; font-weight: bold;}
 
-        /* --- Cloud Status UI (New) --- */
-        .status-indicator {
-            position: fixed; top: calc(var(--header-height) + 10px); right: 20px;
-            display: flex; align-items: center; gap: 8px;
-            background: rgba(255, 255, 255, 0.9); padding: 5px 10px;
-            border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            font-size: 0.85em; color: #555; z-index: 9999;
-            border: 1px solid #ddd;
-        }
-        .status-dot {
-            width: 10px; height: 10px; border-radius: 50%;
-            background-color: #ccc; transition: background-color 0.3s;
-        }
-        .status-dot.loading { background-color: #ff9800; animation: pulse 1s infinite; }
-        .status-dot.success { background-color: #4caf50; }
-        .status-dot.error { background-color: #f44336; }
-
-        /* Animations */
-        @keyframes marquee {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-100%); }
-        }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-
         /* RWD */
         @media (max-width: 768px) {
             #level-screen-content { flex-direction: column; }
             .dashboard-std-zone { border-right: none; border-bottom: 1px solid #90a4ae; }
-            .waterfall-header { flex-direction: column; align-items: flex-start; gap: 5px; top: 80px; margin-top: -15px;} 
+            .waterfall-header { flex-direction: column; align-items: flex-start; gap: 5px; }
             .waterfall-stats { font-size: 0.9em; align-self: flex-end; }
             .card-actions { top: 10px; right: 10px; }
-            body { padding-top: 100px; }
-            #music-player-bar { 
-                grid-template-columns: 50px 1fr 40px; 
-                padding: 0 5px;
-            }
-            .volume-slider { display: none; } /* 手機版隱藏音量條以節省空間 */
-            .status-indicator { top: auto; bottom: 10px; right: 10px; } /* 手機版移到底部 */
+            /* Mobile Sticky Header Height Adjustment */
+            .waterfall-header { top: 60px; margin-top: -15px;} 
+            #music-player-bar { height: 60px; padding: 0 10px; }
+            body { padding-top: 80px; }
+            #yt-wrapper { display: none; position: fixed; bottom: 10px; right: 10px; width: 120px; height: 67px; top: auto; left: auto; transform: none; }
+            #yt-wrapper.mobile-visible { display: block; }
         }
+
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
     </style>
 </head>
 <body>
 
-    <!-- 雲端狀態指示燈 -->
-    <div id="cloud-status" class="status-indicator">
-        <div id="status-dot" class="status-dot"></div>
-        <span id="status-text">連線中...</span>
-    </div>
-
-    <!-- 音樂播放器 (HTML5 Audio) -->
+    <!-- 音樂播放器 -->
     <div id="music-player-bar">
-        <!-- 左側：圖示 -->
         <div class="player-left">
-            <div id="music-icon" class="player-icon">🎵</div>
+            <div class="player-icon">🎵</div>
         </div>
         
-        <!-- 中央：曲名與控制 -->
-        <div class="player-center">
-            <div class="marquee-container">
-                <div id="music-title" class="marquee-text">正在讀取歌單...</div>
-            </div>
-            <div class="player-controls">
-                <button class="ctrl-btn" onclick="prevTrack()" title="上一首">⏮</button>
-                <button id="play-pause-btn" class="ctrl-btn" onclick="toggleAudio()" title="播放/暫停">▶</button>
-                <button class="ctrl-btn" onclick="nextTrack(false)" title="下一首 (隨機)">⏭</button>
-            </div>
+        <div id="yt-wrapper">
+            <div id="yt-player"></div>
+            <div class="yt-overlay"></div>
         </div>
         
-        <!-- 右側：音量 -->
         <div class="player-right">
-            <span class="volume-icon">🔊</span>
-            <input type="range" id="volume-slider" class="volume-slider" min="0" max="1" step="0.1" value="0.3" oninput="setAudioVolume(this.value)">
+            <div class="player-controls">
+                <button class="ctrl-btn" onclick="prevTrack()">⏮</button>
+                <button id="main-play-btn" class="ctrl-btn" onclick="togglePlay()">▶</button>
+                <button class="ctrl-btn" onclick="nextTrack()">⏭</button>
+                
+                <div class="volume-container">
+                    <input type="range" id="volume-slider" class="volume-slider" min="0" max="100" value="30" oninput="setVolume(this.value)">
+                </div>
+
+                <button id="toggle-video-btn" class="ctrl-btn active" onclick="toggleVideoDisplay()">👁️</button>
+                
+                <button id="mode-btn" class="mode-btn" onclick="changeMode()">
+                    <span id="mode-icon">🔁</span>
+                </button>
+            </div>
         </div>
-        
-        <!-- 隱藏的 Audio 標籤 -->
-        <audio id="bg-music"></audio>
     </div>
 
     <!-- 歡迎畫面 -->
@@ -394,9 +360,7 @@
             <img src="images/kitty.png" class="avatar-option" onclick="selectAvatar('kitty.png', this)">
         </div>
 
-        <div id="quick-login-area" class="quick-login-area">
-            <div style="color:#888; padding:10px;">資料載入中...</div>
-        </div>
+        <div id="quick-login-area" class="quick-login-area"></div>
 
         <div style="text-align:center; margin-top: 30px;">
             <button class="btn" onclick="loginAndStart()">🚀 進入市場</button>
@@ -532,211 +496,22 @@
         </div>
     </div>
 
-    <script type="module">
-        // ============================================
-        // 0. Firebase 初始化與設定
-        // ============================================
-        import { initializeApp } from 'firebase/app';
-        import { getAuth, signInAnonymously } from 'firebase/auth';
-        import { getFirestore, collection, doc, setDoc, updateDoc, onSnapshot, arrayUnion, arrayRemove, getDoc } from 'firebase/firestore';
-
-        // 請填入您的 Firebase 設定
-        const firebaseConfig = {
-  apiKey: "AIzaSyAxQFt76ZPXE7d0i1XeNZ1yiiD2WYNIfHs",
-  authDomain: "chinese-learning-47f4d.firebaseapp.com",
-  projectId: "chinese-learning-47f4d",
-  storageBucket: "chinese-learning-47f4d.firebasestorage.app",
-  messagingSenderId: "76289812052",
-  appId: "1:76289812052:web:898384a916f9f341f62fc1"
-};
-
-        let db, auth;
-        let isFirebaseReady = false;
-        
-        // 從 APP_PREFIX 提取 Collection Name
-        const APP_PREFIX = 'Geography3-L6_';
-        const COLLECTION_NAME = APP_PREFIX.replace('_', '') + '_Data'; 
-        const DOC_GLOBAL = 'UserList'; // 儲存所有使用者的清單文件
-        
-        let currentUserDocUnsubscribe = null;
-        let globalUsersUnsubscribe = null;
-
-        // 全域資料快取 (取代 LocalStorage)
-        let currentUserData = {
-            mistakeBank: [],
-            favoriteBank: [],
-            quizHistory: [],
-            quizProgress: { maxLevel: 1, scores: {} },
-            standardProgress: null,
-            waterfallProgress_speed: null,
-            waterfallProgress_mistake: null,
-            waterfallProgress_favorite: null
-        };
-
-        // 初始化 Firebase
-        function initFirebase() {
-            try {
-                const app = initializeApp(firebaseConfig);
-                auth = getAuth(app);
-                db = getFirestore(app);
-                
-                updateConnectionStatus('loading');
-                
-                signInAnonymously(auth).then(() => {
-                    isFirebaseReady = true;
-                    console.log("Firebase Anonymous Auth Success");
-                    updateConnectionStatus('success');
-                    listenToGlobalUsers(); // 登入後監聽使用者列表
-                }).catch((error) => {
-                    console.error("Auth Error:", error);
-                    updateConnectionStatus('error');
-                    alert("無法連線至雲端資料庫，請檢查網路。");
-                });
-
-            } catch (e) {
-                console.error("Firebase Init Error", e);
-                updateConnectionStatus('error');
-            }
-        }
-        
-        // UI 狀態燈更新
-        window.updateConnectionStatus = function(status) {
-            const dot = document.getElementById('status-dot');
-            const text = document.getElementById('status-text');
-            
-            dot.classList.remove('loading', 'success', 'error');
-            
-            if (status === 'loading') {
-                dot.classList.add('loading');
-                text.innerText = '讀取資料中...';
-            } else if (status === 'success') {
-                dot.classList.add('success');
-                text.innerText = '已同步';
-            } else if (status === 'error') {
-                dot.classList.add('error');
-                text.innerText = '雲端同步失敗';
-            }
-        };
-
-        // 監聽全域使用者列表 (Login Screen 用)
-        function listenToGlobalUsers() {
-            const globalDocRef = doc(db, COLLECTION_NAME, DOC_GLOBAL);
-            globalUsersUnsubscribe = onSnapshot(globalDocRef, (docSnap) => {
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    window.renderQuickLogin(data.users || []);
-                } else {
-                    window.renderQuickLogin([]); // 若文件不存在，傳空陣列
-                }
-            }, (error) => {
-                console.error("Listen Global Error:", error);
-                updateConnectionStatus('error');
-            });
-        }
-        
-        // 儲存資料到雲端 (Helper)
-        window.updateUserData = async function(field, value) {
-            if (!isFirebaseReady || !window.userName) return;
-            
-            updateConnectionStatus('loading');
-            
-            // 更新本地快取 (樂觀更新)
-            currentUserData[field] = value;
-            
-            // 如果是 quizState 相關的物件，直接更新記憶體中的 quizState
-            if (window.quizState && 
-               (field === 'standardProgress' || field.startsWith('waterfallProgress'))) {
-                // 這裡是為了確保操作時記憶體狀態同步
-            }
-
-            const userDocRef = doc(db, COLLECTION_NAME, window.userName);
-            try {
-                await setDoc(userDocRef, { [field]: value }, { merge: true });
-                updateConnectionStatus('success');
-            } catch (e) {
-                console.error("Save Error:", e);
-                updateConnectionStatus('error');
-            }
-        };
-
-        // 啟動 App
-        initFirebase();
-
-        // 匯出需要的函式到 window 以供 HTML onclick 使用
-        window.db = db;
-        window.auth = auth;
-        window.COLLECTION_NAME = COLLECTION_NAME;
-        window.DOC_GLOBAL = DOC_GLOBAL;
-        window.currentUserData = currentUserData;
-        window.listenToCurrentUser = listenToCurrentUser;
-
-        // 監聽當前使用者資料
-        function listenToCurrentUser(name) {
-             if (currentUserDocUnsubscribe) currentUserDocUnsubscribe(); // 取消舊的監聽
-             
-             updateConnectionStatus('loading');
-             const userDocRef = doc(db, COLLECTION_NAME, name);
-             
-             currentUserDocUnsubscribe = onSnapshot(userDocRef, (docSnap) => {
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    // 合併雲端資料到本地快取，若雲端沒有則保持預設
-                    window.currentUserData = { ...window.currentUserData, ...data };
-                    
-                    // 特殊邏輯：即時同步瀑布流進度
-                    if (document.getElementById('waterfall-screen').style.display === 'block') {
-                         const currentMode = window.quizState.mode;
-                         const cloudProgress = window.currentUserData['waterfallProgress_' + currentMode];
-                         
-                         // 如果雲端有進度且比本地新 (簡單判斷: 只要有變動就同步)
-                         if (cloudProgress) {
-                             window.quizState = cloudProgress;
-                             window.updateWaterfallStats();
-                             // 若有卡片被鎖定，更新 UI (不重新渲染整個列表以免閃爍，僅更新 locked 狀態)
-                             Object.keys(window.quizState.locked).forEach(qid => {
-                                 const card = document.getElementById(`card-${qid}`);
-                                 if (card && !card.classList.contains('locked')) {
-                                     // 這裡簡單處理：若發現外部更新導致狀態改變，重新渲染該卡片太複雜，
-                                     // 選擇直接重新渲染整個瀑布流比較保險，雖然會跳回頂部
-                                     // 為了體驗，這裡我們僅更新數據顯示，細節操作依賴使用者互動
-                                 }
-                             });
-                         }
-                    }
-                    
-                    updateConnectionStatus('success');
-                } else {
-                    // 新使用者，無資料
-                    updateConnectionStatus('success');
-                }
-             }, (e) => {
-                 console.error("User Sync Error:", e);
-                 updateConnectionStatus('error');
-             });
-        }
-    </script>
-
+    <script src="https://www.youtube.com/iframe_api"></script>
     <script>
-        // ============================================
-        // 1. 設定與全域變數
-        // ============================================
-        const MUSIC_CONFIG = {
-            username: 'nicktsai88', // 例如 'johndoe'
-            repo: 'Music',     // 例如 'geography-quiz'
-            folder: ''            // 資料夾名稱 (若無則留空 '')
-        };
-
+        // 設定與全域變數
+        // 修改點 2: 總題數 207 題，分為 10 關 (9*20 + 1*27)
         const LEVEL_CONFIG = [20, 20, 20, 20, 20, 20, 20, 20, 20, 27];
-        // APP_PREFIX 已在 module script 定義並使用
+        // 影片播放清單
+        const YOUTUBE_PLAYLIST = ['iLAS0vy7-78', '5zeyr-_G_4w', 'aZXJATkkDoA', 'UKbZ4r88z3Q', 'aGZk0nEBWv4', 'advioIb8-gE'];
+        // 修改點 3: LocalStorage 前綴改為 Geography3-L6_
+        const APP_PREFIX = 'Geography3-L6_';
         
-        // 音樂播放器變數
-        const bgAudio = document.getElementById('bg-music');
-        let playlist = []; // { title, url }
-        let currentTrackIndex = 0;
-        let isMusicPlaying = false;
-
+        let player, isPlayerReady = false, isPlaying = false;
         let allQuestions = [], currentQuizData = [];
         let userName = "", currentAvatar = "Chris.png";
+        
+        // 影片索引追蹤
+        let currentVideoIdx = 0;
         
         // 測驗狀態
         let quizState = {
@@ -744,208 +519,47 @@
             level: 1,
             score: 0,
             currentIndex: 0,
-            answers: {}, 
-            locked: {}
+            answers: {}, // { qId: selectedOption }
+            locked: {}   // 瀑布流模式下鎖定的題目 ID
         };
 
         const audioCorrect = new Audio('sounds/correct.mp3'); audioCorrect.volume = 0.4;
         const audioFail = new Audio('sounds/fail.mp3'); audioFail.volume = 0.4;
 
         // --- 初始化 ---
-        document.addEventListener('DOMContentLoaded', () => {
-            fetchMusicFromGitHub(); // 載入音樂清單
-            fetch('questions.json').then(res => res.json())
-                .then(data => { allQuestions = data; }) // renderQuickLogin 改由 Firebase listener 觸發
-                .catch(e => console.error("Error loading questions:", e));
-        });
+        fetch('questions.json').then(res => res.json())
+            .then(data => { allQuestions = data; renderQuickLogin(); })
+            .catch(e => console.error("Error loading questions:", e));
 
-        // ============================================
-        // 2. 音樂播放器邏輯 (GitHub API + Audio)
-        // ============================================
-        
-        // 從 GitHub 抓取音樂列表
-        async function fetchMusicFromGitHub() {
-            const { username, repo, folder } = MUSIC_CONFIG;
-            if(!username || !repo) {
-                document.getElementById('music-title').innerText = "尚未設定 GitHub 資訊";
-                return;
-            }
+        function getUserKey(key) { return APP_PREFIX + userName + '_' + key; }
 
-            const apiUrl = `https://api.github.com/repos/${username}/${repo}/contents/${folder}`;
-
-            try {
-                const response = await fetch(apiUrl);
-                if (!response.ok) throw new Error('GitHub API Error');
-                const files = await response.json();
-                
-                // 過濾 mp3 並建立播放清單
-                playlist = files
-                    .filter(file => file.name.toLowerCase().endsWith('.mp3'))
-                    .map(file => ({
-                        title: file.name.replace(/\.mp3$/i, ''),
-                        url: file.download_url
-                    }));
-
-                if (playlist.length > 0) {
-                    shuffleArray(playlist); // 洗牌
-                    loadTrack(0); // 載入第一首但不播放
-                } else {
-                    document.getElementById('music-title').innerText = "找不到 MP3 檔案";
-                }
-            } catch (error) {
-                console.error('Fetch Music Error:', error);
-                document.getElementById('music-title').innerText = "無法載入歌單 (請檢查設定)";
-            }
-        }
-
-        // 洗牌演算法 (Fisher-Yates)
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-        }
-
-        // 載入歌曲
-        function loadTrack(index) {
-            if (playlist.length === 0) return;
-            currentTrackIndex = index;
-            
-            // 設定音源與標題
-            bgAudio.src = playlist[index].url;
-            bgAudio.load();
-            document.getElementById('music-title').innerText = `🎵 ${playlist[index].title} 🎵`;
-            
-            // 重置跑馬燈動畫 (移除再新增 class)
-            const marquee = document.getElementById('music-title');
-            marquee.style.animation = 'none';
-            marquee.offsetHeight; /* trigger reflow */
-            marquee.style.animation = 'marquee 25s linear infinite';
-        }
-
-        // 播放/暫停切換
-        function toggleAudio() {
-            if (playlist.length === 0) return;
-            
-            if (bgAudio.paused) {
-                playMusic();
-            } else {
-                pauseMusic();
-            }
-        }
-
-        function playMusic() {
-            const playPromise = bgAudio.play();
-            if (playPromise !== undefined) {
-                playPromise.then(() => {
-                    isMusicPlaying = true;
-                    updatePlayerUI(true);
-                }).catch(error => {
-                    console.log("Autoplay prevented:", error);
-                    isMusicPlaying = false;
-                    updatePlayerUI(false);
-                });
-            }
-        }
-
-        function pauseMusic() {
-            bgAudio.pause();
-            isMusicPlaying = false;
-            updatePlayerUI(false);
-        }
-
-        function updatePlayerUI(playing) {
-            const btn = document.getElementById('play-pause-btn');
-            const icon = document.getElementById('music-icon');
-            if (playing) {
-                btn.innerText = '⏸';
-                icon.style.animationPlayState = 'running';
-            } else {
-                btn.innerText = '▶';
-                icon.style.animationPlayState = 'paused';
-            }
-        }
-
-        // 下一首 (隨機/順序播放，因為列表已洗牌，順序播就是隨機)
-        function nextTrack(isAuto = false) {
-            if (playlist.length === 0) return;
-            let nextIndex = (currentTrackIndex + 1) % playlist.length;
-            loadTrack(nextIndex);
-            if (isMusicPlaying || isAuto) playMusic();
-        }
-
-        // 上一首
-        function prevTrack() {
-            if (playlist.length === 0) return;
-            let prevIndex = (currentTrackIndex - 1 + playlist.length) % playlist.length;
-            loadTrack(prevIndex);
-            if (isMusicPlaying) playMusic();
-        }
-
-        // 音量控制
-        function setAudioVolume(val) {
-            bgAudio.volume = val;
-        }
-
-        // 監聽播放結束自動下一首
-        bgAudio.addEventListener('ended', () => {
-            nextTrack(true);
-        });
-
-        // ============================================
-        // 3. 既有遊戲邏輯 (修改為 Firebase 版)
-        // ============================================
-
+        // --- 登入與導航 ---
         function selectAvatar(img, el) {
             currentAvatar = img;
             document.querySelectorAll('.avatar-option').forEach(e => e.classList.remove('selected'));
             el.classList.add('selected');
         }
 
-        async function loginAndStart() {
+        function loginAndStart() {
             const name = document.getElementById('username').value.trim();
             if(!name) return alert('請輸入分析師代號');
             userName = name;
-            
-            // 觸發音樂播放
-            playMusic();
-            
-            await saveUserGlobal(); // 確保使用者在列表中
-            
-            // 開始監聽該使用者詳細資料
-            window.listenToCurrentUser(userName);
-            
-            // 稍微等待資料讀取 (因為 onSnapshot 是非同步的，但通常很快)
-            // 實務上可以做一個 Loading Screen，這裡簡單用 setTimeout 確保資料到位
-            window.updateConnectionStatus('loading');
-            setTimeout(() => {
-                goToDashboard();
-            }, 800);
+            saveUser();
+            if(isPlayerReady && !isPlaying) player.playVideo();
+            goToDashboard();
         }
 
-        // 更新全域使用者列表 (Firestore)
-        async function saveUserGlobal() {
-            const { doc, updateDoc, setDoc, arrayUnion, getDoc } = window.firebase.firestore; // Access from window (injected via module types if needed, but easier to use exposed updateUserData logic, wait, need dedicated logic for global list)
-            
-            // 由於 module script scope 問題，我們在 module 內部未暴露 arrayUnion。
-            // 這裡使用簡單的邏輯：利用 updateUserData 概念，但針對 Global Doc
-            // 更好的方式：在 module script 暴露一個 addUserToGlobal 函式
-            
-            // Hack for simplicity without changing module exports structure too much:
-            // We'll rely on a custom function exposed from module script if possible, 
-            // OR rewrite logic here assuming 'db' is on window.
-            
-            // 修正：在 module script 中暴露 db 和 methods
-        }
-
-        // 我們需要重寫 renderQuickLogin 以支援捲軸和歡迎訊息
-        window.renderQuickLogin = function(users) {
-            const container = document.getElementById('quick-login-area');
-            if (users.length === 0) {
-                container.innerHTML = `<div style="padding:20px; color:#666; width:100%; text-align:center;">尚無挑戰者紀錄，歡迎加入！</div>`;
-                return;
+        function saveUser() {
+            let users = JSON.parse(localStorage.getItem(APP_PREFIX+'savedUsers')) || [];
+            if(!users.some(u => u.name === userName)) {
+                users.push({name: userName, avatar: currentAvatar});
+                localStorage.setItem(APP_PREFIX+'savedUsers', JSON.stringify(users));
             }
-            
+        }
+        
+        function renderQuickLogin() {
+            const users = JSON.parse(localStorage.getItem(APP_PREFIX+'savedUsers')) || [];
+            const container = document.getElementById('quick-login-area');
             container.innerHTML = users.map(u => `
                 <div class="user-tag" onclick="quickLogin('${u.name}', '${u.avatar}')">
                     <img src="images/${u.avatar}" style="width:20px;height:20px;border-radius:50%;">${u.name}
@@ -962,74 +576,20 @@
 
         function deleteUser(name) {
             if(!confirm(`刪除 ${name} 的所有資料？`)) return;
+            localStorage.removeItem(APP_PREFIX + name + '_mistakeBank');
+            localStorage.removeItem(APP_PREFIX + name + '_favoriteBank');
+            localStorage.removeItem(APP_PREFIX + name + '_quizHistory');
+            localStorage.removeItem(APP_PREFIX + name + '_quizProgress');
+            localStorage.removeItem(APP_PREFIX + name + '_standardProgress');
+            // 移除所有模式的瀑布流進度
+            localStorage.removeItem(APP_PREFIX + name + '_waterfallProgress_speed');
+            localStorage.removeItem(APP_PREFIX + name + '_waterfallProgress_mistake');
+            localStorage.removeItem(APP_PREFIX + name + '_waterfallProgress_favorite');
             
-            // 這裡需要呼叫 Firebase 刪除邏輯
-            // 由於複雜度，建議透過一個 exposed function 處理
-            // 我們在下面 script 區塊外無法直接用 arrayRemove
-            // 暫時僅從 UI 移除 (若需完整功能需在 module 內實作 removeUser)
-            alert("請聯繫管理員重置資料庫，或等待功能更新。");
+            let users = JSON.parse(localStorage.getItem(APP_PREFIX+'savedUsers')) || [];
+            localStorage.setItem(APP_PREFIX+'savedUsers', JSON.stringify(users.filter(u => u.name !== name)));
+            renderQuickLogin();
         }
-        
-        // 為了讓 saveUserGlobal 工作，我們在 module script 增加邏輯
-        // 由於已經在 module script 寫了 initFirebase，這裡補充:
-        // 請看 module script 區段，我需要在那邊增加 `saveUserGlobal` 和 `deleteUser` 的實作並掛載到 window
-
-    </script>
-    
-    <!-- 補完 Module Script 的掛載函式 -->
-    <script type="module">
-        import { doc, updateDoc, setDoc, arrayUnion, arrayRemove, getDoc } from 'firebase/firestore';
-        
-        window.saveUserGlobal = async function() {
-            const globalRef = doc(window.db, window.COLLECTION_NAME, window.DOC_GLOBAL);
-            try {
-                // 先檢查是否存在
-                const snap = await getDoc(globalRef);
-                const newUser = { name: window.userName, avatar: window.currentAvatar };
-                
-                if (snap.exists()) {
-                    // 檢查是否已存在 (避免重複)
-                    const users = snap.data().users || [];
-                    const exists = users.some(u => u.name === window.userName);
-                    if (!exists) {
-                        await updateDoc(globalRef, {
-                            users: arrayUnion(newUser)
-                        });
-                    }
-                } else {
-                    await setDoc(globalRef, { users: [newUser] });
-                }
-            } catch (e) {
-                console.error("Global User Save Error", e);
-            }
-        };
-
-        window.deleteUser = async function(name) {
-             if(!confirm(`刪除 ${name} 的所有資料？`)) return;
-             
-             const globalRef = doc(window.db, window.COLLECTION_NAME, window.DOC_GLOBAL);
-             try {
-                 // 取得目前列表以找到正確的物件 reference (用於 arrayRemove)
-                 const snap = await getDoc(globalRef);
-                 if(snap.exists()) {
-                     const users = snap.data().users || [];
-                     const target = users.find(u => u.name === name);
-                     if(target) {
-                         await updateDoc(globalRef, {
-                             users: arrayRemove(target)
-                         });
-                         // 選擇性：也可以刪除該使用者的文件 doc(db, COLLECTION, name)
-                     }
-                 }
-             } catch(e) {
-                 console.error("Delete Error", e);
-                 alert("刪除失敗，請檢查網路");
-             }
-        };
-    </script>
-
-    <script>
-        // 接續一般 JS 邏輯
 
         function goToDashboard() {
             hideAllScreens();
@@ -1045,16 +605,22 @@
             document.querySelectorAll('.container-box').forEach(el => el.style.display = 'none');
         }
 
-        // --- 標準實驗模式 ---
+        // --- 標準實驗模式 (Standard Mode) ---
         function renderLevelGrid() {
             const grid = document.getElementById('level-grid');
-            if(!grid) return;
+            if(!grid) return console.error("Level grid element not found!");
             
             grid.innerHTML = "";
-            // 從快取讀取
-            let progress = window.currentUserData.quizProgress || { maxLevel: 1, scores: {} };
+            let progress;
+            try {
+                progress = JSON.parse(localStorage.getItem(getUserKey('quizProgress'))) || { maxLevel: 1, scores: {} };
+            } catch(e) {
+                progress = { maxLevel: 1, scores: {} };
+            }
             
+            // 確保 scores 存在
             if(!progress.scores) progress.scores = {};
+            // 確保 maxLevel 存在
             if(!progress.maxLevel) progress.maxLevel = 1;
 
             LEVEL_CONFIG.forEach((_, idx) => {
@@ -1064,14 +630,16 @@
                 
                 if (level <= progress.maxLevel) {
                     const score = progress.scores[level];
-                    let icon = '🏙️'; 
-                    if (score >= 90) icon = '💎'; 
-                    else if (score >= 70) icon = '🏭'; 
+                    let icon = '🏙️'; // 修改點：更換圖示為城市
+                    if (score >= 90) icon = '💎'; // 高分鑽石
+                    else if (score >= 70) icon = '🏭'; // 及格工廠
                     
+                    // 修改點：文字改為「板塊」
                     btn.innerHTML = `<div class="lvl-icon">${icon}</div><div class="lvl-label">板塊 ${level}</div>${score !== undefined ? `<div class="lvl-score">${score}分</div>` : ''}`;
                     btn.onclick = () => startStandardQuiz(level);
                 } else {
                     btn.disabled = true;
+                    // 修改點：文字改為「板塊」
                     btn.innerHTML = `<div class="lvl-icon" style="filter:grayscale(1);">🔒</div><div class="lvl-label">板塊 ${level}</div>`;
                 }
                 grid.appendChild(btn);
@@ -1079,17 +647,19 @@
         }
 
         function startStandardQuiz(level, forceNew = false) {
-            // 從快取讀取進度
-            if(!forceNew && window.currentUserData.standardProgress) {
-                const saved = window.currentUserData.standardProgress;
+            const savedKey = getUserKey('standardProgress');
+            if(!forceNew) {
+                const saved = JSON.parse(localStorage.getItem(savedKey));
                 if(saved && saved.level === level) {
-                      quizState = saved;
-                      currentQuizData = allQuestions.filter(q => quizState.qIds.includes(q.id));
-                      loadStandardUI();
-                      return;
+                     // 自動恢復進度
+                     quizState = saved;
+                     currentQuizData = allQuestions.filter(q => quizState.qIds.includes(q.id));
+                     loadStandardUI();
+                     return;
                 }
             }
             
+            // 開始新測驗 (或覆蓋舊的)
             let startIdx = 0;
             for(let i=0; i<level-1; i++) startIdx += LEVEL_CONFIG[i];
             let endIdx = startIdx + LEVEL_CONFIG[level-1];
@@ -1113,6 +683,7 @@
         function loadStandardUI() {
             hideAllScreens();
             document.getElementById('quiz-content').style.display = 'block';
+            // 修改點：文字改為「園區」
             document.getElementById('level-title').innerText = `🏭 園區 ${quizState.level}`;
             document.getElementById('total-q-num').innerText = currentQuizData.length;
             loadStandardQuestion();
@@ -1122,8 +693,8 @@
             const qData = currentQuizData[quizState.currentIndex];
             if(!qData) return finishStandardQuiz();
             
-            // 儲存進度到雲端
-            window.updateUserData('standardProgress', quizState);
+            // Auto Save
+            localStorage.setItem(getUserKey('standardProgress'), JSON.stringify(quizState));
 
             document.getElementById('current-q-num').innerText = quizState.currentIndex + 1;
             document.getElementById('progress-bar').style.width = ((quizState.currentIndex) / currentQuizData.length * 100) + '%';
@@ -1182,6 +753,8 @@
                 audioFail.play().catch(()=>{});
                 addToMistake(qData.id);
             }
+            
+            // Re-render to show colors and explanation
             loadStandardQuestion();
         }
 
@@ -1191,9 +764,7 @@
         }
 
         function finishStandardQuiz() {
-            // 清除未完成進度
-            window.updateUserData('standardProgress', null);
-            
+            localStorage.removeItem(getUserKey('standardProgress')); // Clear save
             document.getElementById('quiz-content').style.display = 'none';
             document.getElementById('score-box').style.display = 'block';
             
@@ -1201,7 +772,10 @@
             document.getElementById('final-score').innerText = finalScore;
             document.getElementById('final-name').innerText = userName;
             
-            let progress = window.currentUserData.quizProgress || { maxLevel: 1, scores: {} };
+            // Progress logic
+            let progress = JSON.parse(localStorage.getItem(getUserKey('quizProgress'))) || { maxLevel: 1, scores: {} };
+            
+            // 防呆：確保 scores 存在
             if(!progress.scores) progress.scores = {};
             if(!progress.maxLevel) progress.maxLevel = 1;
 
@@ -1213,27 +787,30 @@
                 progress.maxLevel++;
                 unlocked = true;
             }
-            // 儲存關卡進度
-            window.updateUserData('quizProgress', progress);
+            localStorage.setItem(getUserKey('quizProgress'), JSON.stringify(progress));
             
             document.getElementById('unlock-msg').style.display = unlocked ? 'block' : 'none';
             document.getElementById('new-card-alert').style.display = (finalScore >= 70 && oldScore < 70) ? 'block' : 'none';
             
+            // Score Comment
             let cmt = "再接再厲！";
             if(finalScore == 100) cmt = "晉升首席分析師！";
             else if(finalScore >= 90) cmt = "市場敏銳度極高！";
             else if(finalScore >= 70) cmt = "投資成功！";
             document.getElementById('score-comment').innerText = cmt;
 
+            // Save History
             saveHistory(finalScore, `園區 ${quizState.level}`);
         }
 
-        // --- 瀑布流刷題模式 ---
+        // --- 瀑布流刷題模式 (Waterfall Mode) ---
         function startWaterfallQuiz(mode, forceNew = false) {
-            // 讀取快取
-            const savedKey = 'waterfallProgress_' + mode;
-            if(!forceNew && window.currentUserData[savedKey]) {
-                const saved = window.currentUserData[savedKey];
+            // FIX: 使用加上模式後綴的鍵值，避免互相覆蓋
+            const savedKey = getUserKey('waterfallProgress_' + mode);
+            
+            if(!forceNew) {
+                const saved = JSON.parse(localStorage.getItem(savedKey));
+                // 自動恢復進度 (只要有存檔就載入，因為 Key 已經區分開了)
                 if(saved) {
                     quizState = saved;
                     renderWaterfallUI();
@@ -1241,24 +818,25 @@
                 }
             }
 
+            // Init New
             quizState = {
                 mode: mode,
                 score: 0,
                 answers: {},
-                locked: {}, 
+                locked: {}, // { qId: true/false }
                 qIds: []
             };
 
             if(mode === 'speed') {
-                quizState.qIds = allQuestions.map(q => q.id); 
+                quizState.qIds = allQuestions.map(q => q.id); // 依照 json 順序
                 document.getElementById('wf-mode-title').innerText = "極速經貿";
                 document.getElementById('wf-mode-icon').innerText = "⚡";
             } else if(mode === 'mistake') {
-                quizState.qIds = window.currentUserData.mistakeBank || [];
+                quizState.qIds = JSON.parse(localStorage.getItem(getUserKey('mistakeBank'))) || [];
                 document.getElementById('wf-mode-title').innerText = "錯題筆記";
                 document.getElementById('wf-mode-icon').innerText = "📕";
             } else if(mode === 'favorite') {
-                quizState.qIds = window.currentUserData.favoriteBank || [];
+                quizState.qIds = JSON.parse(localStorage.getItem(getUserKey('favoriteBank'))) || [];
                 document.getElementById('wf-mode-title').innerText = "趨勢收藏";
                 document.getElementById('wf-mode-icon').innerText = "⭐";
             }
@@ -1271,11 +849,12 @@
         function renderWaterfallUI() {
             hideAllScreens();
             document.getElementById('waterfall-screen').style.display = 'block';
-            window.updateWaterfallStats(); // 呼叫全域函式
+            updateWaterfallStats();
             
             const list = document.getElementById('waterfall-list');
             list.innerHTML = "";
             
+            // Use stored order
             const questions = allQuestions.filter(q => quizState.qIds.includes(q.id));
 
             questions.forEach((q, idx) => {
@@ -1283,9 +862,11 @@
                 card.className = 'waterfall-card';
                 card.id = `card-${q.id}`;
                 
+                // Header (Question + Actions)
                 const isFav = isFavorite(q.id);
                 const canDelete = (quizState.mode === 'mistake' || quizState.mode === 'favorite');
                 
+                // 修改點：使用空心/實心愛心切換 + &#xFE0E; 強制文字模式
                 let actionsHtml = `
                     <div class="card-actions">
                          ${canDelete ? `<span class="action-icon trash" onclick="deleteCardItem('${q.id}')">🗑️</span>` : ''}
@@ -1294,8 +875,11 @@
                 `;
                 
                 let imgHtml = q.image ? `<img src="${q.image}" class="wf-img">` : '';
+                
+                // Question Text (Remove "1. 1." duplicates logic)
                 let qTextHtml = `<div class="wf-question-text"><span class="wf-q-badge">#${idx+1}</span>${q.question}</div>`;
 
+                // Options
                 let optionsHtml = '<div class="wf-options">';
                 q.options.forEach(opt => {
                     let btnClass = 'wf-opt-btn';
@@ -1315,12 +899,14 @@
                 });
                 optionsHtml += '</div>';
 
+                // Explanation
                 let expStyle = quizState.locked[q.id] ? 'display:block' : '';
                 let expHtml = `<div class="wf-explanation" style="${expStyle}"><strong>💡 解析：</strong>${q.explanation||'略'}</div>`;
 
                 card.innerHTML = actionsHtml + qTextHtml + imgHtml + optionsHtml + expHtml;
                 list.appendChild(card);
 
+                // 如果已經鎖定(作答過)，直接上色
                 if(quizState.locked[q.id]) {
                     card.classList.add('locked');
                     const correct = q.answer.substring(0,3);
@@ -1329,36 +915,48 @@
                     else card.classList.add('card-wrong');
                 }
             });
+            
+            // Restore scroll if possible? (Simpler: scroll to top)
             window.scrollTo(0, 0);
         }
 
         function handleWaterfallAnswer(qId, option) {
+            // FIX: 確保 id 轉為字串後再比對，避免類型不符 (number vs string)
             if(quizState.locked[qId]) return;
             
             const qData = allQuestions.find(q => String(q.id) === String(qId));
-            if(!qData) return;
+            
+            // 防呆機制：若找不到題目則不執行
+            if(!qData) {
+                console.error("找不到題目資料 ID:", qId);
+                return;
+            }
 
             quizState.answers[qId] = option;
             quizState.locked[qId] = true;
             
             const correct = qData.answer.substring(0,3);
             const selected = option.substring(0,3);
+            
+            // 取得卡片元素
             const card = document.getElementById(`card-${qId}`);
 
             if(selected === correct) {
                 quizState.score++;
                 audioCorrect.play().catch(()=>{});
                 confetti({ particleCount: 50, origin: { y: 0.8 } });
-                if(card) card.classList.add('card-correct');
+                if(card) card.classList.add('card-correct'); // 立即變綠
             } else {
                 audioFail.play().catch(()=>{});
                 addToMistake(qId);
-                if(card) card.classList.add('card-wrong');
+                if(card) card.classList.add('card-wrong'); // 立即變紅
             }
             
-            // 儲存瀑布流進度
-            window.updateUserData('waterfallProgress_' + quizState.mode, quizState);
-            window.updateWaterfallStats();
+            // Save Progress (FIX: Use mode-specific key)
+            localStorage.setItem(getUserKey('waterfallProgress_' + quizState.mode), JSON.stringify(quizState));
+            
+            // Update UI (Single Card)
+            updateWaterfallStats();
             
             if(card) {
                 card.classList.add('locked');
@@ -1373,56 +971,49 @@
             }
         }
 
-        // 掛載到 window 以供模組呼叫
-        window.updateWaterfallStats = function() {
-            if (!quizState || !quizState.locked) return;
+        function updateWaterfallStats() {
             const answered = Object.keys(quizState.locked).length;
             const total = quizState.qIds.length;
-            const scoreEl = document.getElementById('wf-score');
-            const ansEl = document.getElementById('wf-answered');
-            const totalEl = document.getElementById('wf-total');
-            
-            if(scoreEl) scoreEl.innerText = quizState.score;
-            if(ansEl) ansEl.innerText = answered;
-            if(totalEl) totalEl.innerText = total;
+            document.getElementById('wf-answered').innerText = answered;
+            document.getElementById('wf-total').innerText = total;
+            document.getElementById('wf-score').innerText = quizState.score;
         }
 
+        // --- Common Logic (Favorites, Mistakes, History) ---
         function addToMistake(id) {
-            let list = window.currentUserData.mistakeBank || [];
+            let list = JSON.parse(localStorage.getItem(getUserKey('mistakeBank'))) || [];
             if(!list.includes(id)) {
-                // 原本是 push，現在需要產生新陣列並存到雲端
-                const newList = [...list, id];
-                window.updateUserData('mistakeBank', newList);
-                // updateDashboardTools 讀取的是 currentUserData，因為 updateUserData 有更新本地快取，所以直接呼叫即可
+                list.push(id);
+                localStorage.setItem(getUserKey('mistakeBank'), JSON.stringify(list));
                 updateDashboardTools();
             }
         }
 
         function isFavorite(id) {
-            let list = window.currentUserData.favoriteBank || [];
+            let list = JSON.parse(localStorage.getItem(getUserKey('favoriteBank'))) || [];
             return list.includes(id);
         }
 
         function toggleWaterfallFav(btn, id) {
-            let list = window.currentUserData.favoriteBank || [];
-            let newList;
-            
+            let list = JSON.parse(localStorage.getItem(getUserKey('favoriteBank'))) || [];
             if(list.includes(id)) {
-                newList = list.filter(x => x !== id);
+                list = list.filter(x => x !== id);
                 btn.classList.remove('active');
+                // 修改點：取消收藏時，變回空心愛心 + 強制文字模式
                 btn.innerHTML = '♡&#xFE0E;';
             } else {
-                newList = [...list, id];
+                list.push(id);
                 btn.classList.add('active');
+                // 修改點：收藏時，變為實心愛心 + 強制文字模式
                 btn.innerHTML = '♥&#xFE0E;';
             }
-            window.updateUserData('favoriteBank', newList);
+            localStorage.setItem(getUserKey('favoriteBank'), JSON.stringify(list));
             updateDashboardTools();
         }
 
         function updateDashboardTools() {
-            let mList = window.currentUserData.mistakeBank || [];
-            let fList = window.currentUserData.favoriteBank || [];
+            let mList = JSON.parse(localStorage.getItem(getUserKey('mistakeBank'))) || [];
+            let fList = JSON.parse(localStorage.getItem(getUserKey('favoriteBank'))) || [];
             
             const btnM = document.getElementById('btn-mistake');
             const btnF = document.getElementById('btn-favorite');
@@ -1442,24 +1033,28 @@
             if(!confirm("確定要從此清單中刪除這題嗎？")) return;
             if(!confirm("再次確認：刪除後將無法恢復！")) return;
             
+            // Remove from list (Mistake or Favorite)
             if(quizState.mode === 'mistake') {
-                let list = window.currentUserData.mistakeBank || [];
-                const newList = list.filter(x => x !== id);
-                window.updateUserData('mistakeBank', newList);
-                quizState.qIds = newList;
+                let list = JSON.parse(localStorage.getItem(getUserKey('mistakeBank'))) || [];
+                list = list.filter(x => x !== id);
+                localStorage.setItem(getUserKey('mistakeBank'), JSON.stringify(list));
+                quizState.qIds = list;
             } else if (quizState.mode === 'favorite') {
-                let list = window.currentUserData.favoriteBank || [];
-                const newList = list.filter(x => x !== id);
-                window.updateUserData('favoriteBank', newList);
-                quizState.qIds = newList;
+                let list = JSON.parse(localStorage.getItem(getUserKey('favoriteBank'))) || [];
+                list = list.filter(x => x !== id);
+                localStorage.setItem(getUserKey('favoriteBank'), JSON.stringify(list));
+                quizState.qIds = list;
             }
 
+            // Remove visual element
             const card = document.getElementById(`card-${id}`);
             if(card) card.remove();
             
-            // 更新進度
-            window.updateUserData('waterfallProgress_' + quizState.mode, quizState);
-            window.updateWaterfallStats();
+            // FIX: Ensure this deletion is saved to current progress so it doesn't reappear on resume
+            localStorage.setItem(getUserKey('waterfallProgress_' + quizState.mode), JSON.stringify(quizState));
+            
+            // Update stats
+            updateWaterfallStats();
             updateDashboardTools();
             
             if(quizState.qIds.length === 0) {
@@ -1471,21 +1066,20 @@
         function toggleStandardFavorite() {
             if(!currentQuizData[quizState.currentIndex]) return;
             const id = currentQuizData[quizState.currentIndex].id;
-            let list = window.currentUserData.favoriteBank || [];
-            let newList;
+            let list = JSON.parse(localStorage.getItem(getUserKey('favoriteBank'))) || [];
             
             if(list.includes(id)) {
-                newList = list.filter(x => x !== id);
+                list = list.filter(x => x !== id);
             } else {
-                newList = [...list, id];
+                list.push(id);
             }
-            window.updateUserData('favoriteBank', newList);
+            localStorage.setItem(getUserKey('favoriteBank'), JSON.stringify(list));
             updateStandardFavoriteUI(id);
             updateDashboardTools();
         }
 
         function updateStandardFavoriteUI(id) {
-            let list = window.currentUserData.favoriteBank || [];
+            let list = JSON.parse(localStorage.getItem(getUserKey('favoriteBank'))) || [];
             const btn = document.getElementById('std-fav-btn');
             if(list.includes(id)) {
                 btn.innerText = '★'; btn.style.background = 'var(--favorite-color)'; btn.style.color = 'white';
@@ -1496,10 +1090,12 @@
 
         function exitQuiz() {
             if(confirm("確定要暫時離開？(系統將自動儲存進度，並記錄目前成績)")) {
+                // 若為標準模式，中途退出時將目前成績寫入歷史紀錄
                 if (quizState.mode === 'standard' && currentQuizData.length > 0) {
                     const currentScore = Math.round((quizState.score / currentQuizData.length) * 100);
                     saveHistory(currentScore, `園區 ${quizState.level} (未完)`);
                 }
+                
                 goToDashboard();
             }
         }
@@ -1509,31 +1105,31 @@
             if (!confirm("再次確認：清除後無法復原，確定重新開始？")) return;
 
             if (quizState.mode === 'standard') {
-                window.updateUserData('standardProgress', null);
-                startStandardQuiz(quizState.level, true); 
+                localStorage.removeItem(getUserKey('standardProgress'));
+                startStandardQuiz(quizState.level, true); // forceNew = true
             } else {
-                window.updateUserData('waterfallProgress_' + quizState.mode, null);
-                startWaterfallQuiz(quizState.mode, true);
+                // FIX: Use mode-specific key
+                localStorage.removeItem(getUserKey('waterfallProgress_' + quizState.mode));
+                startWaterfallQuiz(quizState.mode, true); // forceNew = true
             }
         }
 
         function saveHistory(score, modeTitle) {
-            let history = window.currentUserData.quizHistory || [];
-            const newRecord = {
+            let history = JSON.parse(localStorage.getItem(getUserKey('quizHistory'))) || [];
+            history.push({
                 date: new Date().toLocaleString(),
                 score: score,
                 mode: modeTitle
-            };
-            const newHistory = [...history, newRecord];
-            window.updateUserData('quizHistory', newHistory);
+            });
+            localStorage.setItem(getUserKey('quizHistory'), JSON.stringify(history));
         }
         
         function showHistory() {
             hideAllScreens();
             document.getElementById('history-screen').style.display = 'block';
             const list = document.getElementById('history-list');
-            let history = window.currentUserData.quizHistory || [];
-            list.innerHTML = history.slice().reverse().map(h => `
+            let history = JSON.parse(localStorage.getItem(getUserKey('quizHistory'))) || [];
+            list.innerHTML = history.reverse().map(h => `
                 <li style="background:#fff; padding:15px; border-bottom:1px solid #eee; margin-bottom:10px; border-radius:5px;">
                     <strong>${h.mode}</strong> - <span style="color:${h.score>=70?'green':'red'}">${h.score}分</span>
                     <br><small>${h.date}</small>
@@ -1541,14 +1137,17 @@
             `).join('') || '<p style="text-align:center">無紀錄</p>';
         }
 
+        // 修改點：地理圖鑑解鎖前後顯示邏輯
         function showCollection() {
             hideAllScreens();
             document.getElementById('collection-screen').style.display = 'block';
             const grid = document.getElementById('collection-grid');
             grid.innerHTML = "";
-            const progress = window.currentUserData.quizProgress || { maxLevel: 1, scores: {} }; 
+            const progress = JSON.parse(localStorage.getItem(getUserKey('quizProgress'))) || { maxLevel: 1, scores: {} }; // bug fix
             
+            // 防呆
             if(!progress.scores) progress.scores = {};
+
             const scores = progress.scores || {};
 
             for(let i=1; i<=LEVEL_CONFIG.length; i++) {
@@ -1556,8 +1155,10 @@
                 const unlocked = (scores[i] >= 70);
                 
                 const item = document.createElement('div');
+                // 若未解鎖，添加 locked class (CSS處理灰階與鎖頭)
                 item.className = `card-item ${unlocked ? '' : 'locked'}`;
                 
+                // HTML結構：無論解鎖與否都放入圖片，未解鎖時疊加鎖頭圖層
                 let htmlContent = `<img src="images/card_${num}.jpg" onerror="this.style.display='none';this.parentNode.innerHTML='圖片載入失敗'">`;
                 if(!unlocked) {
                     htmlContent += `<div class="lock-overlay">🔒</div><div style="position:absolute;bottom:10px;width:100%;text-align:center;font-weight:bold;color:white;text-shadow:0 0 3px #000;">園區 ${i}</div>`;
@@ -1580,6 +1181,49 @@
         function closeCardModal() { document.getElementById('card-modal').style.display = 'none'; }
         
         function logout() { location.reload(); }
+
+        // --- YouTube & Audio ---
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('yt-player', {
+                height: '100%', width: '100%',
+                videoId: YOUTUBE_PLAYLIST[currentVideoIdx], // 修改點：使用索引載入
+                playerVars: { 'playsinline': 1, 'controls': 0, 'disablekb': 1, 'fs': 0, 'rel': 0 },
+                events: { 'onReady': onPlayerReady, 'onStateChange': onPlayerStateChange }
+            });
+        }
+        function onPlayerReady() { isPlayerReady = true; player.setVolume(30); }
+        function onPlayerStateChange(e) { 
+            isPlaying = (e.data == YT.PlayerState.PLAYING);
+            document.getElementById('main-play-btn').innerText = isPlaying ? '⏸' : '▶';
+            if(e.data == YT.PlayerState.ENDED) player.playVideo(); // Loop current video
+        }
+        function togglePlay() { if(isPlayerReady) isPlaying ? player.pauseVideo() : player.playVideo(); }
+        // 修改點：上一首功能
+        function prevTrack() { 
+            if(isPlayerReady) {
+                currentVideoIdx = (currentVideoIdx - 1 + YOUTUBE_PLAYLIST.length) % YOUTUBE_PLAYLIST.length;
+                player.loadVideoById(YOUTUBE_PLAYLIST[currentVideoIdx]);
+            }
+        }
+        // 修改點：下一首功能
+        function nextTrack() { 
+            if(isPlayerReady) {
+                currentVideoIdx = (currentVideoIdx + 1) % YOUTUBE_PLAYLIST.length;
+                player.loadVideoById(YOUTUBE_PLAYLIST[currentVideoIdx]);
+            }
+        } 
+        function setVolume(v) { if(isPlayerReady) player.setVolume(v); }
+        function toggleVideoDisplay() {
+            const wrap = document.getElementById('yt-wrapper');
+            const btn = document.getElementById('toggle-video-btn');
+            // Logic for mobile vs desktop toggle
+            if(window.innerWidth <= 768) wrap.classList.toggle('mobile-visible');
+            else wrap.classList.toggle('video-hidden');
+            
+            const hidden = wrap.classList.contains('video-hidden') && !wrap.classList.contains('mobile-visible');
+            btn.classList.toggle('active', !hidden);
+        }
+        function changeMode() { /* Loop handled by simple restart for now */ }
 
     </script>
 </body>
